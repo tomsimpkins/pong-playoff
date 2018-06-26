@@ -65,31 +65,15 @@ class MainState extends Phaser.State {
       this.paddle1.y = Math.min(this.paddle1.y + MAX_PADDLE_DELTA, this.game.height - this.paddle1.height / 2)
     }
 
+    let proposedPosition = paddle2Bot(this.formatPaddleData(true))
+    let diff = proposedPosition - this.paddle2.y
 
+    diff = diff > MAX_PADDLE_DELTA ? MAX_PADDLE_DELTA :
+      diff < -MAX_PADDLE_DELTA ? -MAX_PADDLE_DELTA :
+        diff
 
-    // let ballPaddleYDist = this.ball.y - this.paddle2.y
-    //
-    // ballPaddleYDist = ballPaddleYDist > MAX_PADDLE_DELTA ? MAX_PADDLE_DELTA :
-    //   ballPaddleYDist < -MAX_PADDLE_DELTA ? -MAX_PADDLE_DELTA :
-    //     ballPaddleYDist
-    //
-    // if (ballPaddleYDist < 0) {
-    //   this.paddle2.y = Math.max(this.paddle2.y + ballPaddleYDist, this.paddle2.height / 2)
-    // } else {
-    //   this.paddle2.y = Math.min(this.paddle2.y + ballPaddleYDist, this.game.height - this.paddle2.height / 2)
-    // }
+    this.paddle2.y = Math.max(Math.min(this.paddle2.y + diff, this.game.height - this.paddle2.height / 2), this.paddle2.height / 2)
 
-    // if ((this.tick % 60) === 0) {
-      let data = this.formatPaddleData(false)
-      let proposedPosition = paddle2Bot(data)
-      let diff = proposedPosition - this.paddle2.y
-
-      diff = diff > MAX_PADDLE_DELTA ? MAX_PADDLE_DELTA :
-        diff < -MAX_PADDLE_DELTA ? -MAX_PADDLE_DELTA :
-          diff
-
-      this.paddle2.y = Math.max(Math.min(this.paddle2.y + diff, this.game.height - this.paddle2.height / 2), this.paddle2.height / 2)
-    // }
   }
 
   render() {

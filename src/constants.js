@@ -1,4 +1,4 @@
-const INITIAL_VELOCITY = [180, 0] // pixel per frame
+const INITIAL_VELOCITY = [-180, 0] // pixel per frame
 const MAX_PADDLE_DELTA = 8 // // pixel per frame
 const SPEED_INCREMENT = 30
 
