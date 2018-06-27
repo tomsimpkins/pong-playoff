@@ -5,7 +5,8 @@ import {
   BALL_DIMS,
   GAME_DIMS,
   PADDLE_DIMS,
-  MAX_PADDLE_DELTA
+  MAX_PADDLE_DELTA,
+  PADDLE_CONFIG
 } from "../constants.js"
 
 class MainState extends Phaser.State {
@@ -47,32 +48,61 @@ class MainState extends Phaser.State {
     this.ball.checkWorldBounds = true
     this.ball.events.onOutOfBounds.add(this.ballLost, this);
 
-    this.cursors = this.game.input.keyboard.createCursorKeys();
+    if (PADDLE_CONFIG[0] === "human") {
+      this.wasd = {
+        up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
+        down: this.game.input.keyboard.addKey(Phaser.Keyboard.S),
+        left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
+        right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
+      }
+    }
+
+    if (PADDLE_CONFIG[1] === "human") {
+      this.cursors = this.game.input.keyboard.createCursorKeys();
+    }
+
     this.game.input.onDown.add(this.releaseBall, this);
   }
 
   update() {
     if (this._paused) return
 
-    this.tick++
     this.game.physics.arcade.collide(this.ball, this.paddle1, MainState.ballOnPaddle1, null, this)
     this.game.physics.arcade.collide(this.ball, this.paddle2, MainState.ballOnPaddle2, null, this)
 
-    if (this.cursors.up.isDown) {
-      this.paddle1.y = Math.max(this.paddle1.y - MAX_PADDLE_DELTA, this.paddle1.height / 2)
+    if (PADDLE_CONFIG[0] === "human") {
+      this.updateHumanPaddle(this.paddle1, this.wasd)
     }
-    else if (this.cursors.down.isDown) {
-      this.paddle1.y = Math.min(this.paddle1.y + MAX_PADDLE_DELTA, this.game.height - this.paddle1.height / 2)
+    else {
+      this.updateBotPaddle(this.paddle1, paddle1Bot, this.formatPaddleData())
     }
 
-    let proposedPosition = MainState.fromPaddleCoords(paddle2Bot(this.formatPaddleData(true)))
-    let diff = proposedPosition - this.paddle2.y
+    if (PADDLE_CONFIG[1] === "human") {
+      this.updateHumanPaddle(this.paddle2, this.cursors)
+    }
+    else {
+      this.updateBotPaddle(this.paddle2, paddle2Bot, this.formatPaddleData(true))
+    }
+  }
+
+  updateHumanPaddle(paddle, keys) {
+    if (keys.up.isDown) {
+      paddle.y = Math.max(paddle.y - MAX_PADDLE_DELTA, paddle.height / 2)
+    }
+    else if (keys.down.isDown) {
+      paddle.y = Math.min(paddle.y + MAX_PADDLE_DELTA, this.game.height - paddle.height / 2)
+    }
+  }
+
+  updateBotPaddle(paddle, updateFunction, data) {
+    let proposedPosition = MainState.fromPaddleCoords(updateFunction(data))
+    let diff = proposedPosition - paddle.y
 
     diff = diff > MAX_PADDLE_DELTA ? MAX_PADDLE_DELTA :
       diff < -MAX_PADDLE_DELTA ? -MAX_PADDLE_DELTA :
         diff
 
-    this.paddle2.y = Math.max(Math.min(this.paddle2.y + diff, this.game.height - this.paddle2.height / 2), this.paddle2.height / 2)
+    paddle.y = Math.max(Math.min(paddle.y + diff, this.game.height - paddle.height / 2), paddle.height / 2)
 
   }
 
