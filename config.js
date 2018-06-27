@@ -1,5 +1,5 @@
 module.exports = {
-    GAME_TITLE: 'Phaser Community Edition Boilerplate', // Text for title tag in index.html
+    GAME_TITLE: 'Pong Playoff', // Text for title tag in index.html
     BUILD_PATH: './build', // Destination folder
     OUTPUT_FILE: 'game.js', // File with generated bundle
     MAIN_FILE: './src/index.js', // Main file (entry point)

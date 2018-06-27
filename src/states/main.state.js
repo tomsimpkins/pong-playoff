@@ -65,7 +65,7 @@ class MainState extends Phaser.State {
       this.paddle1.y = Math.min(this.paddle1.y + MAX_PADDLE_DELTA, this.game.height - this.paddle1.height / 2)
     }
 
-    let proposedPosition = paddle2Bot(this.formatPaddleData(true))
+    let proposedPosition = MainState.fromPaddleCoords(paddle2Bot(this.formatPaddleData(true)))
     let diff = proposedPosition - this.paddle2.y
 
     diff = diff > MAX_PADDLE_DELTA ? MAX_PADDLE_DELTA :
@@ -131,6 +131,14 @@ class MainState extends Phaser.State {
   static toFpsSpeed(v) {
     return v / 60
   }
+  
+  static toPaddleCoords(y) {
+    return y - GAME_DIMS[1] / 2
+  }
+  
+  static fromPaddleCoords(y) {
+    return y + GAME_DIMS[1] / 2
+  }
 
   formatPaddleData(reverse = false) {
     let leftBound, rightBound
@@ -145,16 +153,16 @@ class MainState extends Phaser.State {
       SPEED_INCREMENT: MainState.toFpsSpeed(SPEED_INCREMENT),
       MAX_PADDLE_DELTA
     }, !reverse ? {
-      player: this.paddle1.y,
-      opponent: this.paddle2.y,
+      player: MainState.toPaddleCoords(this.paddle1.y),
+      opponent: MainState.toPaddleCoords(this.paddle2.y),
       INITIAL_VELOCITY: INITIAL_VELOCITY.map(MainState.toFpsSpeed),
-      ballPosition: [this.ball.position.x - leftBound, this.ball.position.y],
+      ballPosition: [this.ball.position.x - leftBound, MainState.toPaddleCoords(this.ball.position.y)],
       ballVelocity: [this.ball.body.velocity.x, this.ball.body.velocity.y].map(MainState.toFpsSpeed)
     } : {
-      player: this.paddle2.y,
-      opponent: this.paddle1.y,
+      player: MainState.toPaddleCoords(this.paddle2.y),
+      opponent: MainState.toPaddleCoords(this.paddle1.y),
       INITIAL_VELOCITY: [-INITIAL_VELOCITY[0], INITIAL_VELOCITY[1]].map(MainState.toFpsSpeed),
-      ballPosition: [rightBound - this.ball.position.x, this.ball.position.y],
+      ballPosition: [rightBound - this.ball.position.x, MainState.toPaddleCoords(this.ball.position.y)],
       ballVelocity: [-this.ball.body.velocity.x, this.ball.body.velocity.y].map(MainState.toFpsSpeed)
     })
   }
